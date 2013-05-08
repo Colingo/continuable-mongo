@@ -55,3 +55,33 @@ test("can insert & read from db (callbacks)", function (assert) {
         })
     })
 })
+
+test("can call stream on cursor", function (assert) {
+    var client = mongo("mongodb://localhost:27017/continuable-mongo-tests")
+    var temp = client.collection("stream_collection_" + uuid())
+    var id = uuid()
+
+    temp.insert([{ id: id }, { id2: id }], function (err, records) {
+        assert.ifError(err)
+        assert.equal(records.length, 2)
+
+        var stream = temp.find().stream()
+        var list = []
+
+        stream.on("data", function (r) {
+            list.push(r)
+        })
+
+        stream.on("end", function () {
+            assert.equal(list.length, 2)
+            assert.equal(list[0].id, id)
+            assert.equal(list[1].id2, id)
+
+            client.close(function (err) {
+                assert.ifError(err)
+
+                assert.end()
+            })
+        })
+    })
+})
