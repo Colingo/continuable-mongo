@@ -41,7 +41,15 @@ function createStream(cursor) {
         var stream = through()
 
         cursor(function (err, cursor) {
+            if (err) {
+                return stream.emit("error", err)
+            }
+
             var cursorStream = cursor.stream()
+
+            stream.once("close", function () {
+                cursorStream.destroy()
+            })
 
             cursorStream.pipe(stream)
         })
