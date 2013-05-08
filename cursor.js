@@ -37,7 +37,7 @@ function createCursor(collection) {
 }
 
 function createStream(cursor) {
-    return function () {
+    return function (transform) {
         var stream = through()
 
         cursor(function (err, cursor) {
@@ -45,7 +45,7 @@ function createStream(cursor) {
                 return stream.emit("error", err)
             }
 
-            var cursorStream = cursor.stream()
+            var cursorStream = cursor.stream(transform)
 
             stream.once("close", function () {
                 cursorStream.destroy()
