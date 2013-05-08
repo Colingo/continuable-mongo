@@ -8,6 +8,9 @@ A thin mongo wrapper which exposes mongodb as continuables
 
 ## Example
 
+For now you can pass either a callback to each collection method
+  or not pass in a callback and the function returns a continuable
+
 ```js
 var mongo = require("continuable-mongo")
 
@@ -18,12 +21,12 @@ var myCollection = client.collection("my-collection")
 myCollection.insert([{
     some: "key",
     value: "pair"
-}])(function (err, inserted) {
+}], function (err, inserted) {
     // inserted records
 
     myCollection.findOne({
         some: "key"
-    })(function (err, result) {
+    }, function (err, result) {
         // result.value === "pair"
 
         console.log("result", result)
