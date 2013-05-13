@@ -1,4 +1,3 @@
-var mongodb = require("mongodb")
 var MongoClient = require("mongodb").MongoClient
 var cache = require("continuable-cache")
 

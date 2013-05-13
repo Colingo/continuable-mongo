@@ -18,36 +18,36 @@ module.exports = createCursor
 
 function createCursor(collection) {
     return function (selector, options) {
-        var cursor = cache(map(function (collection) {
+        var cursor = cache(map(function find(collection) {
             return collection.find(selector, options || {})
         })(collection))
 
-        cursor.toArray = mapAsync(function (cursor, cb) {
+        cursor.toArray = mapAsync(function toArray(cursor, cb) {
             cursor.toArray(cb)
         })(cursor)
 
-        cursor.nextObject = mapAsync(function (cursor, cb) {
+        cursor.nextObject = mapAsync(function nextObject(cursor, cb) {
             cursor.nextObject(cb)
         })(cursor)
 
-        cursor.stream = createStream(cursor)
+        cursor.stream = CreateStream(cursor)
 
         return cursor
     }
 }
 
-function createStream(cursor) {
-    return function (transform) {
+function CreateStream(cursor) {
+    return function createStream(transform) {
         var stream = through()
 
-        cursor(function (err, cursor) {
+        cursor(function callback(err, cursor) {
             if (err) {
                 return stream.emit("error", err)
             }
 
             var cursorStream = cursor.stream(transform)
 
-            stream.once("close", function () {
+            stream.once("close", function destroy() {
                 cursorStream.destroy()
             })
 
