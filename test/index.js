@@ -4,14 +4,15 @@ var bind = require("continuable/bind")
 
 var mongo = require("../index")
 
+var client = mongo("mongodb://localhost:27017/continuable-mongo-tests")
+var temp = client.collection("temp_collection")
+
 test("continuable-mongo is a function", function (assert) {
     assert.equal(typeof mongo, "function")
     assert.end()
 })
 
 test("can insert and read from db", function (assert) {
-    var client = mongo("mongodb://localhost:27017/continuable-mongo-tests")
-    var temp = client.collection("temp_collection")
     var id = uuid()
 
     var insertion = temp.insert([{ id: id }])
@@ -26,17 +27,11 @@ test("can insert and read from db", function (assert) {
         assert.ifError(err)
         assert.equal(value.id, id)
 
-        client.close(function (err) {
-            assert.ifError(err)
-
-            assert.end()
-        })
+        assert.end()
     })
 })
 
 test("can insert & read from db (callbacks)", function (assert) {
-    var client = mongo("mongodb://localhost:27017/continuable-mongo-tests")
-    var temp = client.collection("temp_collection")
     var id = uuid()
 
     temp.insert([{ id: id }], function (err, records) {
@@ -47,17 +42,30 @@ test("can insert & read from db (callbacks)", function (assert) {
             assert.ifError(err)
             assert.equal(value.id, id)
 
-            client.close(function (err) {
-                assert.ifError(err)
+            assert.end()
+        })
+    })
+})
 
-                assert.end()
-            })
+test("can findById", function (assert) {
+    var id = uuid()
+
+    temp.insert([{ id: id }], function (err, records) {
+        assert.ifError(err)
+        assert.equal(records.length, 1)
+
+        var _id = String(records[0]._id)
+
+        temp.findById(_id, function (err, record) {
+            assert.ifError(err)
+            assert.equal(record.id, id)
+
+            assert.end()
         })
     })
 })
 
 test("can call stream on cursor", function (assert) {
-    var client = mongo("mongodb://localhost:27017/continuable-mongo-tests")
     var temp = client.collection("stream_collection_" + uuid())
     var id = uuid()
 
@@ -77,11 +85,15 @@ test("can call stream on cursor", function (assert) {
             assert.equal(list[0].id, id)
             assert.equal(list[1].id2, id)
 
-            client.close(function (err) {
-                assert.ifError(err)
-
-                assert.end()
-            })
+            assert.end()
         })
+    })
+})
+
+test("close mongo", function (assert) {
+    client.close(function (err) {
+        assert.ifError(err)
+
+        assert.end()
     })
 })

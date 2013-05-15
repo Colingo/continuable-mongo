@@ -34,6 +34,26 @@ myCollection.insert([{
 })
 ```
 
+## Differences from mongodb/Collection
+
+### `Collection#findById`
+
+a collection object returned by `client.collection` has an
+    additional `.findById(id)` method. This is used to find
+    a record by it's mongodb _id. It's assumed that id is a string
+    or otherwise valid argument to `ObjectID` and that the _id field
+    on the mongodb record is a `ObjectID`
+
+The purpose of this method is not have to manually require `ObjectID`
+    to avoid littering your code base to mongodb internal references.
+
+If you do need access to the raw ObjectID function there is a safer
+    variant that can be required `"continuable-mongo/object-id"` which
+    either returns a mongodb/ObjectID instance or will return an `Error`.
+    Which means it's a function which will not throw but does need
+    checking on the returned value.
+
+
 ## Installation
 
 `npm install continuable-mongo`

@@ -1,12 +1,14 @@
 var map = require("continuable/map")
 var cache = require("continuable-cache")
 
+var SafeObjectID = require("./object-id")
 var createCursor = require("./cursor")
 var mapAsync = require("./lib/map-async")
 
 /*  type Collection := {
         (Callback<mongodb/Collection>) => void,
         find: (selector: Object, options: Object?) => Cursor,
+        findById: (id: String, options: Object?) => Continuable<Value>,
         findAndModify: (selector: Object, sort: Array?, doc: Object?,
             options: Object?) => Continuable<Value>,
         findAndRemove: (selector: Object, sort: Array?, options: Object?)
@@ -34,6 +36,18 @@ function createCollection(client) {
         })(client))
 
         col.find = createCursor(col)
+
+        col.findById = maybeCallback(function findById(id, options) {
+            return mapAsync(function apply(col, cb) {
+                var _id = SafeObjectID(id)
+
+                if (_id.is === "Error") {
+                    return cb(_id)
+                }
+
+                col.findOne({ _id: _id }, options || {}, cb)
+            })(col)
+        })
 
         col.findAndModify = maybeCallback(
             function findAndModify(selector, sort, doc, options) {
