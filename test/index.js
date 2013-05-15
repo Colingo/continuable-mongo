@@ -90,6 +90,46 @@ test("can call stream on cursor", function (assert) {
     })
 })
 
+test("can call toArray continuable style", function (assert) {
+    var temp = client.collection("toArray_continuable_" + uuid())
+    var id = uuid()
+
+    temp.insert([{ id: id }, { id2: id }], function (err, records) {
+        assert.ifError(err)
+        assert.equal(records.length, 2)
+
+        var arr = temp.find().toArray()
+
+        arr(function (err, list) {
+            assert.ifError(err)
+            assert.equal(list.length, 2)
+            assert.equal(list[0].id, id)
+            assert.equal(list[1].id2, id)
+
+            assert.end()
+        })
+    })
+})
+
+test("can call toArray callback style", function (assert) {
+    var temp = client.collection("toArray_callback_" + uuid())
+    var id = uuid()
+
+    temp.insert([{ id: id }, { id2: id }], function (err, records) {
+        assert.ifError(err)
+        assert.equal(records.length, 2)
+
+        temp.find().toArray(function (err, list) {
+            assert.ifError(err)
+            assert.equal(list.length, 2)
+            assert.equal(list[0].id, id)
+            assert.equal(list[1].id2, id)
+
+            assert.end()
+        })
+    })
+})
+
 test("close mongo", function (assert) {
     client.close(function (err) {
         assert.ifError(err)

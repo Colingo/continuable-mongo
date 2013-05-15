@@ -4,6 +4,7 @@ var cache = require("continuable-cache")
 var SafeObjectID = require("./object-id")
 var createCursor = require("./cursor")
 var mapAsync = require("./lib/map-async")
+var maybeCallback = require("./lib/maybe-callback")
 
 /*  type Collection := {
         (Callback<mongodb/Collection>) => void,
@@ -100,24 +101,5 @@ function createCollection(client) {
             })
 
         return col
-    }
-}
-
-function maybeCallback(fn) {
-    return function maybeContinuable() {
-        var args = [].slice.call(arguments)
-        var callback = args[args.length - 1]
-
-        if (typeof callback === "function") {
-            args.pop()
-        }
-
-        var continuable = fn.apply(null, args)
-
-        if (typeof callback === "function") {
-            continuable(callback)
-        } else {
-            return continuable
-        }
     }
 }

@@ -3,11 +3,12 @@ var cache = require("continuable-cache")
 var through = require("through")
 
 var mapAsync = require("./lib/map-async")
+var maybeCallback = require("./lib/maybe-callback")
 
 /*  type Cursor := {
         (Callback<mongodb/Cursor>) => void,
-        toArray: Continuable<Array<Value>>,
-        nextObject: Continuable<Value | null>,
+        toArray: () => Continuable<Array<Value>>,
+        nextObject: () => Continuable<Value | null>,
         stream: () => Stream
     }
 
@@ -22,13 +23,17 @@ function createCursor(collection) {
             return collection.find(selector, options || {})
         })(collection))
 
-        cursor.toArray = mapAsync(function toArray(cursor, cb) {
-            cursor.toArray(cb)
-        })(cursor)
+        cursor.toArray = maybeCallback(function toArray() {
+            return mapAsync(function apply(cursor, cb) {
+                cursor.toArray(cb)
+            })(cursor)
+        })
 
-        cursor.nextObject = mapAsync(function nextObject(cursor, cb) {
-            cursor.nextObject(cb)
-        })(cursor)
+        cursor.nextObject = maybeCallback(function nextObject() {
+            return mapAsync(function apply(cursor, cb) {
+                cursor.nextObject(cb)
+            })(cursor)
+        })
 
         cursor.stream = CreateStream(cursor)
 
