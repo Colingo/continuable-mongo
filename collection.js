@@ -40,13 +40,13 @@ function createCollection(client) {
 
         col.findById = maybeCallback(function findById(id, options) {
             return mapAsync(function apply(col, cb) {
-                var _id = SafeObjectID(id)
+                SafeObjectID(id, function (err, _id) {
+                    if (err) {
+                        return cb(err)
+                    }
 
-                if (_id.is === "Error") {
-                    return cb(_id)
-                }
-
-                col.findOne({ _id: _id }, options || {}, cb)
+                    col.findOne({ _id: _id }, options || {}, cb)
+                })
             })(col)
         })
 

@@ -2,14 +2,13 @@ var ObjectID = require("mongodb").ObjectID
 
 module.exports = SafeObjectID
 
-function SafeObjectID(id) {
+function SafeObjectID(id, callback) {
     var result
     try {
         result = new ObjectID(id)
     } catch (err) {
-        err.is = "Error"
-        result = err
+        return callback(err)
     }
 
-    return result
+    callback(null, result)
 }
