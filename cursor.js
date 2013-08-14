@@ -2,39 +2,29 @@ var map = require("continuable/map")
 var cache = require("continuable-cache")
 var through = require("through")
 
-var mapAsync = require("./lib/map-async")
-var maybeCallback = require("./lib/maybe-callback")
+var proxyMethod = require("./lib/proxy-method.js")
 
-/*  type Cursor := {
-        (Callback<mongodb/Cursor>) => void,
-        toArray: () => Continuable<Array<Value>>,
-        nextObject: () => Continuable<Value | null>,
-        stream: () => Stream
-    }
-
-    createCursor := (Collection) =>
-        (selector: Object, options: Object?) => Cursor
-*/
 module.exports = createCursor
 
 function createCursor(collection) {
-    return function (selector, options) {
-        var cursor = cache(map(function find(collection) {
-            return collection.find(selector, options || {})
-        })(collection))
+    return function (selector, options, callback) {
+        if (typeof options === "function") {
+            callback = options
+            options = {}
+        }
 
-        cursor.toArray = maybeCallback(function toArray() {
-            return mapAsync(function apply(cursor, cb) {
-                cursor.toArray(cb)
-            })(cursor)
-        })
+        var cursor = cache(map(collection, function find(collection) {
+            var cursor = collection.find(selector, options || {})
 
-        cursor.nextObject = maybeCallback(function nextObject() {
-            return mapAsync(function apply(cursor, cb) {
-                cursor.nextObject(cb)
-            })(cursor)
-        })
+            if (callback) {
+                callback(null, cursor)
+            }
 
+            return cursor
+        }))
+
+        cursor.toArray = proxyMethod(cursor, "toArray")
+        cursor.nextObject = proxyMethod(cursor, "nextObject")
         cursor.stream = CreateStream(cursor)
 
         return cursor
