@@ -8,24 +8,29 @@ module.exports = createCursor
 
 function createCursor(collection) {
     return function (selector, options, callback) {
+        if (typeof selector === "function") {
+            callback = selector
+            selector = {}
+            options = {}
+        }
+
         if (typeof options === "function") {
             callback = options
             options = {}
         }
 
         var cursor = cache(map(collection, function find(collection) {
-            var cursor = collection.find(selector, options || {})
-
-            if (callback) {
-                callback(null, cursor)
-            }
-
-            return cursor
+            return collection.find(selector, options || {})
         }))
 
         cursor.toArray = proxyMethod(cursor, "toArray")
         cursor.nextObject = proxyMethod(cursor, "nextObject")
         cursor.stream = CreateStream(cursor)
+
+
+        if (callback) {
+            callback(null, cursor)
+        }
 
         return cursor
     }

@@ -130,6 +130,29 @@ test("can call toArray callback style", function (assert) {
     })
 })
 
+test("can call toArray with a callback on find()", function (assert) {
+    var temp = client.collection("toArray_callback_" + uuid())
+    var id = uuid()
+
+    temp.insert([{ id: id }, { id2: id }], function (err, records) {
+        assert.ifError(err)
+        assert.equal(records.length, 2)
+
+        temp.find(function (err, cursor) {
+            assert.ifError(err)
+
+            cursor.toArray(function (err, list) {
+                assert.ifError(err)
+                assert.equal(list.length, 2)
+                assert.equal(list[0].id, id)
+                assert.equal(list[1].id2, id)
+
+                assert.end()
+            })
+        })
+    })
+})
+
 test("can findAndModify", function (assert) {
     var id = uuid()
     var temp = client.collection("findAndModify_" + uuid())
