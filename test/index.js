@@ -170,8 +170,6 @@ test("can findAndModify", function (assert) {
             assert.end()
         })
     })
-
-    temp.insert()
 })
 
 test("can findAndRemove", function (assert) {
@@ -258,6 +256,30 @@ test("map FFFFF reduce", function (assert) {
             ])
 
             assert.end()
+        })
+    })
+})
+
+test("can drop collection", function (assert) {
+    var temp = client.collection("dropped_" + uuid())
+
+    temp.insert([
+        { name: "steve", count: 5 }
+    ], function (err, records) {
+        assert.ifError(err)
+
+        assert.equal(records.length, 1)
+
+        temp.drop(function (err) {
+            assert.ifError(err)
+
+            temp.find().toArray(function (err, records) {
+                assert.ifError(err)
+
+                assert.equal(records.length, 0)
+
+                assert.end()
+            })
         })
     })
 })

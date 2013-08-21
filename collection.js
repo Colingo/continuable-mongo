@@ -36,6 +36,7 @@ function createCollection(client) {
         col.mapReduce = proxyMethod(col, "mapReduce", [null, null, {}])
         col.remove = proxyMethod(col, "remove", [{}, {}])
         col.update = proxyMethod(col, "update", [{}, {}, {}])
+        col.drop = proxyMethod(col, "drop", [])
 
         return col
     }

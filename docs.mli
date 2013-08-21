@@ -20,7 +20,8 @@ type Collection := {
     remove: (selector: Object, options: Object?)
         => Continuable<Number>,
     update: (selector: Object, doc: Object?, options: Object?)
-        => Continuable<Number>
+        => Continuable<Number>,
+    drop: () => Continuable<void>
 }
 
 type Cursor := {
