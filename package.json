@@ -1,6 +1,6 @@
 {
   "name": "continuable-mongo",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "A thin mongo wrapper which exposes mongodb as continuables",
   "keywords": [],
   "author": "Raynos <raynos2@gmail.com>",
