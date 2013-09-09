@@ -37,6 +37,7 @@ function createCollection(client) {
         col.remove = proxyMethod(col, "remove", [{}, {}])
         col.update = proxyMethod(col, "update", [{}, {}, {}])
         col.drop = proxyMethod(col, "drop", [])
+        col.ensureIndex = proxyMethod(col, "ensureIndex", [{}, {}])
 
         return col
     }
